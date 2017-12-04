@@ -3,17 +3,32 @@
 # Fixed XOR
 
 import binascii
+import logging
+
+import cp_lib
+
 
 IN_HEX_STR_1 = '1c0111001f010100061a024b53535009181c'
 IN_HEX_STR_2 = '686974207468652062756c6c277320657965'
-TARGET_XOR_RESULT = '746865206b696420646f6e277420706c6179'
+OUT_XOR = '746865206b696420646f6e277420706c6179'
 
-raw1 = bytearray(IN_HEX_STR_1.decode('hex'))
-raw2 = bytearray(IN_HEX_STR_2.decode('hex'))
+def xor_hex_strings(hex1, hex2):
+    if len(hex1) != len(hex2):
+        raise cp_lib.CPValueError('Length of inputs do not match.')
 
-assert len(raw1) == len(raw2), 'Length of inputs do not match.'
+    raw1 = bytearray(hex1.decode('hex'))
+    raw2 = bytearray(hex2.decode('hex'))
 
-# hexlify a string of XOR'd bytes
-result = binascii.hexlify(''.join([chr(raw1[i] ^ raw2[i]) for i in range(len(raw1))]))
+    # hexlify a string of XOR'd bytes
+    return binascii.hexlify(''.join([chr(raw1[i] ^ raw2[i]) for i in range(len(raw1))]))
 
-print result == TARGET_XOR_RESULT
+def test(in1, in2, out):
+    logging.info('Test case. XOR 2 hex strings.')
+    assert xor_hex_strings(in1, in2) == out, 'Failed to XOR 2 hex strings.'
+
+def run_tests():
+    logging.basicConfig(level=logging.INFO)
+    test(IN_HEX_STR_1, IN_HEX_STR_2, OUT_XOR)
+
+run_tests()
+print 'Success'

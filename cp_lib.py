@@ -1,0 +1,2 @@
+class CPValueError(Exception):
+    pass

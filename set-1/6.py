@@ -3,19 +3,24 @@
 # Break repeating-key XOR
 
 import collections
+import logging
 import string
-
 from pprint import pprint
 
+import cp_lib
+from challenge_3 import brute_force_xor
 
-TEST_STR_1 = 'this is a test'
-TEST_STR_2 = 'wokka wokka!!!'
-TEST_HAMMING_DIST = 37
-CIPHERTEXT_FILE = '6.txt'
+
+IN_STR_1 = 'this is a test'
+IN_STR_2 = 'wokka wokka!!!'
+IN_HAMMING_DIST = 37
+IN_CIPHERTEXT_FILE = '6.txt'
+
+KEY_SIZE_RANGE = (2, 65)
 
 def calc_hamming_distance(s1, s2):
     if len(s1) != len(s2):
-        raise RuntimeError('Strings must be of equal length.')
+        raise cp_lib.CPValueError('Strings must be of equal length.')
 
     distance = 0
     # iterate string as list of bytes
@@ -29,42 +34,35 @@ def calc_hamming_distance(s1, s2):
             distance += 0 if b1[i] == b2[i] else 1
     return distance
 
-def test(s1, s2, expected_distance):
+def test_hamming_distance(s1, s2, expected_distance):
+    logging.info('Test case. Hamming distance.')
     distance = calc_hamming_distance(s1, s2)
     assert expected_distance == distance, (
         'Incorrect Hamming distance s1: "{}", s2: "{}" -> {}; Expected {}'.format(s1, s2, distance, expected_distance))
 
-def run_tests():
-    test('A', 'A', 0)
-    test('A', 'B', 2)
-    test('B', 'A', 2)
-    test(TEST_STR_1, TEST_STR_2, TEST_HAMMING_DIST)
-
-#run_tests()
-
 def guess_key_size(ct):
+    logging.info('Guess key size between %d and %d bytes.', *KEY_SIZE_RANGE)
     norm_distances = {}
-    for key_sz in range(2, 65):
+    for key_sz in range(*KEY_SIZE_RANGE):
         hamming_distance = calc_hamming_distance(ct[0:key_sz], ct[0+key_sz:key_sz*2])
         norm_distances.update({key_sz: hamming_distance / key_sz})
-    sorted_guesses = sorted(norm_distances.items(), None, lambda x: x[1])
-    pprint(sorted_guesses)
-    print 'Guessed key size: {}'.format(sorted_guesses[0][0])
+    sorted_guesses = sorted(norm_distances.items(), key=lambda x: x[1])
+    logging.info('Top 5 guesses: %s', [sz for sz, dist in sorted_guesses[:5]])
+    return sorted_guesses[0][0]
 
-#guess_key_size(open(CIPHERTEXT_FILE).read().decode('base64'))
+def run_tests():
+    logging.basicConfig(level=logging.INFO)
 
-#TODO
-def char_histogram(s):
-    counter = collections.Counter(s)
+    test_hamming_distance('A', 'A', 0)
+    test_hamming_distance('A', 'B', 2)
+    test_hamming_distance('B', 'A', 2)
+    test_hamming_distance(IN_STR_1, IN_STR_2, IN_HAMMING_DIST)
 
-def brute_force_xor(ct, keys):
-    """
-    Try each key against ciphertext.
-    """
-    for key in keys:
-        pt = map(chr, [ord(key) ^ ord(ct[byte_idx]) for byte_idx in range(0, len(ct), len(key))])
-        char_histogram(pt)
-        print 'Key: {} -> {!r}'.format(key, pt[:128])
+    key_sz = guess_key_size(open(IN_CIPHERTEXT_FILE).read().decode('base64'))
+    logging.info('Guessed key size: %d', key_sz)
+
+#run_tests()
+#print 'Success'
 
 def transpose_blocks(ct, key_sz):
     """
@@ -81,7 +79,9 @@ def transpose_blocks(ct, key_sz):
 
     for elem in elems:
         for block_idx in range(0, len(elem), key_sz):
-            brute_force_xor(elem[block_idx:block_idx+key_sz], string.ascii_letters)
+            top_scores = brute_force_xor(string.ascii_letters,
+                                         bytearray(elem[block_idx:block_idx+key_sz]))
+            logging.info('Top {} scores: {}'.format(len(top_scores), top_scores))
 
-#brute_force_xor(open(CIPHERTEXT_FILE).read().decode('base64'), string.ascii_letters)
-transpose_blocks(open(CIPHERTEXT_FILE).read().decode('base64'), 5)
+key_sz = guess_key_size(open(IN_CIPHERTEXT_FILE).read().decode('base64'))
+transpose_blocks(open(IN_CIPHERTEXT_FILE).read().decode('base64'), key_sz)
