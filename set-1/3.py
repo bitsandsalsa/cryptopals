@@ -3,10 +3,13 @@
 # Single-byte XOR cipher
 
 import collections
+import logging
 import string
 
-XOR_RESULT = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
-FREQ = {'E': 12.02,
+
+OUT_CIPHERTEXT_HEX_STR = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
+OUT_PLAINTEXT_STR = "Cooking MC's like a pound of bacon"
+FREQ_MAP = {'E': 12.02,
         'T': 9.10,
         'A': 8.12,
         'O': 7.68,
@@ -32,28 +35,44 @@ FREQ = {'E': 12.02,
         'Q': 0.11,
         'J': 0.10,
         'Z': 0.07}
-freq_list = sorted(FREQ.items(), None, lambda x:x[1])
-freq_by_letter, _ = zip(*freq_list)
+NUM_HIGHEST_SCORES = 5
 
-raw_result = bytearray(XOR_RESULT.decode('hex'))
+def score_text(s):
+    score = 0
+    counter = collections.Counter(s.upper())
+    for byte, count in counter.items():
+        try:
+            score += FREQ_MAP[byte] * count
+        except KeyError:
+            # ignore unrecognized bytes
+            pass
+    return score
 
-in_order_list = []
-for key in string.ascii_letters:
-    print '+++Trying key "{}"+++'.format(key)
-    tmp_result = [chr(ord(key) ^ raw_byte) for raw_byte in raw_result]  # try key
-    print 'XOR : {!r}'.format(tmp_result)
-    result = [b.upper() for b in tmp_result if b.isalpha()]  # filter valid ASCII and store as uppercase
-    print 'XOR then filtered for valid ASCII then uppercased: {}'.format(result)
-    letters_from_attempt = list(zip(*collections.Counter(result).most_common())[0])[::-1]  # from least common to most
-    print 'Ordered from least common to most: {}'.format(letters_from_attempt)
-    in_order_cnt = 0
-    for a in freq_by_letter:
-        if a == letters_from_attempt[-1]:
-            in_order_cnt += 1
-            letters_from_attempt.pop()
-    print 'Number of letters in order: {}'.format(in_order_cnt)
-    in_order_list.append(in_order_cnt)
+def brute_force_xor(keys, ciphertext_bytes):
+    scores = {}
+    for key in keys:
+        pt_str = ''.join([chr(ord(key) ^ byte) for byte in ciphertext_bytes])
+        scores[key] = score_text(pt_str)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:NUM_HIGHEST_SCORES]
 
-print
-print 'Summary of in order letters for each attempted key:'
-print sorted(zip(string.ascii_letters, in_order_list), None, lambda x:x[1])
+def test(keys, ciphertext_hex_str, plaintext_str):
+    logging.info('Test case. Decrypt with guessed keys.')
+
+    ciphertext_bytes = bytearray(ciphertext_hex_str.decode('hex'))
+    top_scores = brute_force_xor(keys, ciphertext_bytes)
+    logging.info('Top {} scores: {}'.format(len(top_scores), top_scores))
+    for key, _ in top_scores:
+        decrypted_plaintext = ''.join([chr(ord(key) ^ byte) for byte in ciphertext_bytes])
+        if decrypted_plaintext == plaintext_str:
+            print 'Found key: {}'.format(key)
+            break
+    else:
+        raise AssertionError('Failed to guess a key.')
+
+def run_tests():
+    logging.basicConfig(level=logging.INFO)
+    logging.info('Trying each ASCII letter as a key.')
+    test(string.ascii_letters, OUT_CIPHERTEXT_HEX_STR, OUT_PLAINTEXT_STR)
+
+run_tests()
+print 'Success'
