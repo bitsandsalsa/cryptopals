@@ -27,8 +27,9 @@ def test(in1, in2, out):
     assert xor_hex_strings(in1, in2) == out, 'Failed to XOR 2 hex strings.'
 
 def run_tests():
-    logging.basicConfig(level=logging.INFO)
     test(IN_HEX_STR_1, IN_HEX_STR_2, OUT_XOR)
 
-run_tests()
-print 'Success'
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    run_tests()
+    print 'Success'

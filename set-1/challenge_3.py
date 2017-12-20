@@ -70,9 +70,10 @@ def test(keys, ciphertext_hex_str, plaintext_str):
         raise AssertionError('Failed to guess a key.')
 
 def run_tests():
-    logging.basicConfig(level=logging.INFO)
     logging.info('Trying each ASCII letter as a key.')
     test(string.ascii_letters, OUT_CIPHERTEXT_HEX_STR, OUT_PLAINTEXT_STR)
 
-run_tests()
-print 'Success'
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    run_tests()
+    print 'Success'

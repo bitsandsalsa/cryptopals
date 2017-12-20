@@ -16,8 +16,9 @@ def test(in1, out):
     assert hex_to_base64(in1) == out, 'Failed to convert hex to base64.'
 
 def run_tests():
-    logging.basicConfig(level=logging.INFO)
     test(IN_HEX_STR, OUT_BASE64)
 
-run_tests()
-print 'Success'
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    run_tests()
+    print 'Success'
