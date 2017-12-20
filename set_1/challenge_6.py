@@ -7,8 +7,6 @@ import random
 import string
 
 import cp_lib
-from challenge_3 import brute_force_xor
-from challenge_5 import encrypt
 
 
 IN_STR_1 = 'this is a test'
@@ -95,7 +93,7 @@ def guess_key(elems, score_threshold=2.0):
     key_guesses = []
     for pos, elem in enumerate(elems):
         position_guesses = []  # guesses at this position
-        top_scores = brute_force_xor(string.printable, bytearray(elem))
+        top_scores = cp_lib.brute_force_xor(string.printable, bytearray(elem))
         logging.info('Top 5 scores for position {:d}: {}'.format(pos, top_scores[:5]))
         for score_idx in range(len(top_scores) - 1):
             score_diff = top_scores[score_idx][1] - top_scores[score_idx+1][1]
@@ -136,7 +134,7 @@ def run_tests():
     keys = guess_key(elems, 5.0)
     for key in keys:
         print 'Guessed key: {!r}'.format(key)
-        pt = encrypt(key, ciphertext)
+        pt = cp_lib.encrypt(key, ciphertext)
         logging.debug('Decrypted data:\n-----\n%s-----', pt)
     assert OUT_KEY in keys, 'Failed to find expected key in list of guesses.'
 
