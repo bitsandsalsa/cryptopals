@@ -9,33 +9,38 @@ import string
 
 OUT_CIPHERTEXT_HEX_STR = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
 OUT_PLAINTEXT_STR = "Cooking MC's like a pound of bacon"
+
+# See https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
+#XXX: this ignores capitalization
 FREQ_MAP = {'E': 12.02,
-        'T': 9.10,
-        'A': 8.12,
-        'O': 7.68,
-        'I': 7.31,
-        'N': 6.95,
-        'S': 6.28,
-        'R': 6.02,
-        'H': 5.92,
-        'D': 4.32,
-        'L': 3.98,
-        'U': 2.88,
-        'C': 2.71,
-        'M': 2.61,
-        'F': 2.30,
-        'Y': 2.11,
-        'W': 2.09,
-        'G': 2.03,
-        'P': 1.82,
-        'B': 1.49,
-        'V': 1.11,
-        'K': 0.69,
-        'X': 0.17,
-        'Q': 0.11,
-        'J': 0.10,
-        'Z': 0.07}
-NUM_HIGHEST_SCORES = 5
+            'T': 9.10,
+            'A': 8.12,
+            'O': 7.68,
+            'I': 7.31,
+            'N': 6.95,
+            'S': 6.28,
+            'R': 6.02,
+            'H': 5.92,
+            'D': 4.32,
+            'L': 3.98,
+            'U': 2.88,
+            'C': 2.71,
+            'M': 2.61,
+            'F': 2.30,
+            'Y': 2.11,
+            'W': 2.09,
+            'G': 2.03,
+            'P': 1.82,
+            'B': 1.49,
+            'V': 1.11,
+            'K': 0.69,
+            'X': 0.17,
+            'Q': 0.11,
+            'J': 0.10,
+            'Z': 0.07}
+
+# Put space "slightly" above "E". See https://en.wikipedia.org/wiki/Letter_frequency
+FREQ_MAP[' '] = FREQ_MAP['E'] + 1.0
 
 def score_text(s):
     score = 0
@@ -49,17 +54,22 @@ def score_text(s):
     return score
 
 def brute_force_xor(keys, ciphertext_bytes):
+    """
+    :param list(str) keys: list of single byte keys
+    :param bytearray ciphertext_bytes: ciphertext
+    :rtype: list
+    """
     scores = {}
     for key in keys:
         pt_str = ''.join([chr(ord(key) ^ byte) for byte in ciphertext_bytes])
         scores[key] = score_text(pt_str)
-    return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:NUM_HIGHEST_SCORES]
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
 def test(keys, ciphertext_hex_str, plaintext_str):
     logging.info('Test case. Decrypt with guessed keys.')
 
     ciphertext_bytes = bytearray(ciphertext_hex_str.decode('hex'))
-    top_scores = brute_force_xor(keys, ciphertext_bytes)
+    top_scores = brute_force_xor(keys, ciphertext_bytes)[:5]
     logging.info('Top {} scores: {}'.format(len(top_scores), top_scores))
     for key, _ in top_scores:
         decrypted_plaintext = ''.join([chr(ord(key) ^ byte) for byte in ciphertext_bytes])
