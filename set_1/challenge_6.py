@@ -93,11 +93,11 @@ def guess_key(elems, score_threshold=2.0):
     key_guesses = []
     for pos, elem in enumerate(elems):
         position_guesses = []  # guesses at this position
-        top_scores = cp_lib.brute_force_xor(string.printable, bytearray(elem))
-        logging.info('Top 5 scores for position {:d}: {}'.format(pos, top_scores[:5]))
-        for score_idx in range(len(top_scores) - 1):
-            score_diff = top_scores[score_idx][1] - top_scores[score_idx+1][1]
-            position_guesses.append(top_scores[score_idx][0])
+        scores = cp_lib.brute_force_xor(string.printable, bytearray(elem))
+        logging.info('Top 5 scores for position {:d}: {}'.format(pos, scores[:5]))
+        for score_idx in range(len(scores) - 1):
+            score_diff = scores[score_idx][1] - scores[score_idx+1][1]
+            position_guesses.append(scores[score_idx][0])
             if score_diff > score_threshold:
                 break
 
@@ -135,7 +135,7 @@ def run_tests():
     for key in keys:
         print 'Guessed key: {!r}'.format(key)
         pt = cp_lib.encrypt(key, ciphertext)
-        logging.debug('Decrypted data:\n-----\n%s-----', pt)
+        logging.debug('Decrypted data:\n-----\n%s\n-----', pt)
     assert OUT_KEY in keys, 'Failed to find expected key in list of guesses.'
 
 if __name__ == '__main__':
