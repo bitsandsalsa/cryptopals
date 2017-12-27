@@ -42,6 +42,8 @@ FREQ_MAP = {'E': 12.02,
 # Put space "slightly" above "E". See https://en.wikipedia.org/wiki/Letter_frequency
 FREQ_MAP[' '] = FREQ_MAP['E'] + 1.0
 
+logger = logging.getLogger(__name__)
+
 def score_text(s):
     score = 0
     counter = collections.Counter(s.upper())
@@ -66,11 +68,11 @@ def brute_force_xor(keys, ciphertext_bytes):
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
 def test(keys, ciphertext_hex_str, plaintext_str):
-    logging.info('Test case. Decrypt with guessed keys.')
+    logger.info('Test case. Decrypt with guessed keys.')
 
     ciphertext_bytes = bytearray(ciphertext_hex_str.decode('hex'))
     top_scores = brute_force_xor(keys, ciphertext_bytes)[:5]
-    logging.info('Top {} scores: {}'.format(len(top_scores), top_scores))
+    logger.info('Top {} scores: {}'.format(len(top_scores), top_scores))
     for key, _ in top_scores:
         decrypted_plaintext = ''.join([chr(ord(key) ^ byte) for byte in ciphertext_bytes])
         if decrypted_plaintext == plaintext_str:
@@ -80,10 +82,11 @@ def test(keys, ciphertext_hex_str, plaintext_str):
         raise AssertionError('Failed to guess a key.')
 
 def run_tests():
-    logging.info('Trying each ASCII letter as a key.')
+    logger.info('Trying each ASCII letter as a key.')
     test(string.ascii_letters, OUT_CIPHERTEXT_HEX_STR, OUT_PLAINTEXT_STR)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
     run_tests()
     print 'Success'

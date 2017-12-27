@@ -14,10 +14,12 @@ OUT_LINE_IDX = 170
 OUT_KEY = '5'
 OUT_PLAINTEXT = 'Now that the party is jumping\n'
 
+logger = logging.getLogger(__name__)
+
 def guess_key(ct, score_threshold=2.0):
     key_guesses = []
     scores = cp_lib.brute_force_xor([chr(x) for x in range(256)], bytearray(ct))
-    logging.info('Top 5 scores: {}'.format(scores[:5]))
+    logger.info('Top 5 scores: {}'.format(scores[:5]))
     for score_idx in range(len(scores) - 1):
         score_diff = scores[score_idx][1] - scores[score_idx+1][1]
         key_guesses.append(scores[score_idx])
@@ -49,5 +51,6 @@ def run_tests():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
     run_tests()
     print 'Success'

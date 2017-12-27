@@ -17,6 +17,8 @@ OUT_KEY = 'Terminator X: Bring the noise'
 
 KEY_SIZE_RANGE = (2, 65)
 
+logger = logging.getLogger(__name__)
+
 def calc_hamming_distance(s1, s2):
     if len(s1) != len(s2):
         raise cp_lib.CPValueError('Strings must be of equal length.')
@@ -34,7 +36,7 @@ def calc_hamming_distance(s1, s2):
     return distance
 
 def test_hamming_distance(s1, s2, expected_distance):
-    logging.info('Test case. Hamming distance.')
+    logger.info('Test case. Hamming distance.')
     distance = calc_hamming_distance(s1, s2)
     assert expected_distance == distance, (
         'Incorrect Hamming distance s1: "{}", s2: "{}" -> {}; Expected {}'.format(s1, s2, distance, expected_distance))
@@ -46,7 +48,7 @@ def guess_key_size(ct, block_cnt):
     :return: key sizes
     :rtype: list(int)
     """
-    logging.info('Guess key size between %d and %d bytes.', *KEY_SIZE_RANGE)
+    logger.info('Guess key size between %d and %d bytes.', *KEY_SIZE_RANGE)
     norm_distances = {}  # {key_sz: hamming_distance}
     for key_sz in range(*KEY_SIZE_RANGE):
         hamming_distances = []
@@ -94,7 +96,7 @@ def guess_key(elems, score_threshold=2.0):
     for pos, elem in enumerate(elems):
         position_guesses = []  # guesses at this position
         scores = cp_lib.brute_force_xor(string.printable, bytearray(elem))
-        logging.info('Top 5 scores for position {:d}: {}'.format(pos, scores[:5]))
+        logger.info('Top 5 scores for position {:d}: {}'.format(pos, scores[:5]))
         for score_idx in range(len(scores) - 1):
             score_diff = scores[score_idx][1] - scores[score_idx+1][1]
             position_guesses.append(scores[score_idx][0])
@@ -135,11 +137,12 @@ def run_tests():
     for key in keys:
         print 'Guessed key: {!r}'.format(key)
         pt = cp_lib.encrypt(key, ciphertext)
-        logging.debug('Decrypted data:\n-----\n%s\n-----', pt)
+        logger.debug('Decrypted data:\n-----\n%s\n-----', pt)
     assert OUT_KEY in keys, 'Failed to find expected key in list of guesses.'
 
 if __name__ == '__main__':
     # increase logging level to DEBUG to see decrypted data
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
     run_tests()
     print 'Success'
