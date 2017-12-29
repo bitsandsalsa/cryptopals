@@ -32,7 +32,7 @@ def run_tests():
     for line_idx, line in enumerate(open(IN_CIPHERTEXT_FILE).readlines()):
         ciphertext = line.strip().decode('hex')
         key, score = guess_key(ciphertext, 5.0)[0]  #XXX: top key only
-        pt = cp_lib.encrypt(key, ciphertext)
+        pt = cp_lib.repeating_key_xor(key, ciphertext)
         key_guesses.append((line_idx, key, score, pt))
 
     top_guesses = sorted(key_guesses, key=lambda x:x[2], reverse=True)

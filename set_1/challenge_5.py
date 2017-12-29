@@ -14,7 +14,7 @@ OUT_CIPHERTEXT = '0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a2622
 
 logger = logging.getLogger(__name__)
 
-def encrypt(key, plaintext, out_format_func=lambda x:x):
+def repeating_key_xor(key, plaintext, out_format_func=lambda x:x):
     """
     :param str key: encryption key
     :param str plaintext: plaintext
@@ -31,7 +31,7 @@ def encrypt(key, plaintext, out_format_func=lambda x:x):
 
 def test(key, plaintext, out):
     logger.info('Test case. Repeating key XOR.')
-    assert encrypt(key, plaintext, binascii.hexlify) == out, 'Failed to encrypt.'
+    assert repeating_key_xor(key, plaintext, binascii.hexlify) == out, 'Failed to encrypt.'
 
 def run_tests():
     test(IN_KEY, IN_PLAINTEXT, OUT_CIPHERTEXT)

@@ -136,7 +136,7 @@ def run_tests():
     keys = guess_key(elems, 5.0)
     for key in keys:
         print 'Guessed key: {!r}'.format(key)
-        pt = cp_lib.encrypt(key, ciphertext)
+        pt = cp_lib.repeating_key_xor(key, ciphertext)
         logger.debug('Decrypted data:\n-----\n%s\n-----', pt)
     assert OUT_KEY in keys, 'Failed to find expected key in list of guesses.'
 
