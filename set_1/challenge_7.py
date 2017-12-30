@@ -15,10 +15,12 @@ OUT_PLAINTEXT_LINE78 = "Play that funky music "  # last line before padding
 
 logger = logging.getLogger(__name__)
 
+#XXX: does not handle padding
 def aes_ecb_encrypt(data, key):
     cipher = AES.new(key, mode=AES.MODE_ECB)
     return cipher.encrypt(data)
 
+#XXX: does not handle padding
 def aes_ecb_decrypt(data, key):
     cipher = AES.new(key, mode=AES.MODE_ECB)
     return cipher.decrypt(data)

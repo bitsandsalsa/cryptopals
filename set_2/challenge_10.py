@@ -20,6 +20,7 @@ OUT_PLAINTEXT_SHA256 = '368f2b80b437209451355b750181b378f425cc00af3922bcecc8d4a7
 logger = logging.getLogger(__name__)
 
 # We could use CBC mode from pycrypto package, but we are trying to learn here
+#XXX: does not handle padding
 def aes_cbc_decrypt(data, key, iv):
     cipher = AES.new(key, mode=AES.MODE_ECB, IV=iv)
 
@@ -32,6 +33,7 @@ def aes_cbc_decrypt(data, key, iv):
     return ''.join(pt_blocks)
 
 # We could use CBC mode from pycrypto package, but we are trying to learn here
+#XXX: does not handle paddign
 def aes_cbc_encrypt(data, key, iv):
     cipher = AES.new(key, mode=AES.MODE_ECB, IV=iv)
 
