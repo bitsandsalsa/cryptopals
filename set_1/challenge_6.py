@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def calc_hamming_distance(s1, s2):
     if len(s1) != len(s2):
-        raise cp_lib.CPValueError('Strings must be of equal length.')
+        raise cp_lib.ValueError('Strings must be of equal length.')
 
     distance = 0
     # iterate string as list of bytes

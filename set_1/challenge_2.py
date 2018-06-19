@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def xor_hex_strings(hex1, hex2):
     if len(hex1) != len(hex2):
-        raise cp_lib.CPValueError('Length of inputs do not match.')
+        raise cp_lib.ValueError('Length of inputs do not match.')
 
     raw1 = bytearray(hex1.decode('hex'))
     raw2 = bytearray(hex2.decode('hex'))
